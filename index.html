@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重庆商务职业学院户外篮球场预约系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #2e7d32;
+            --secondary-color: #ff9800;
+            --accent-color: #1e88e5;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --success-color: #4caf50;
+            --warning-color: #ffc107;
+            --danger-color: #f44336;
+            --outdoor-green: #4caf50;
+            --court-color: #8bc34a;
+        }
+        
+        body {
+            background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--outdoor-green));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: #ffd54f;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.7rem 1rem;
+            border-radius: 30px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 500;
+        }
+        
+        nav ul li a:hover, nav ul li a.active {
+            background-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        
+        main {
+            padding: 2rem 0;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 2rem;
+            background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(76, 175, 80, 0.9));
+            background-size: cover;
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .hero h1 {
+            font-size: 2.8rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn:hover {
+            background-color: #1565c0;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.25);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #f57c00;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid white;
+        }
+        
+        .btn-outline:hover {
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s;
+            border-left: 5px solid var(--primary-color);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.7rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 0.9rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.2);
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .time-slots {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        
+        .time-slot {
+            padding: 0.9rem 0.5rem;
+            text-align: center;
+            background-color: #f0f4f7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            border: 2px solid transparent;
+        }
+        
+        .time-slot:hover {
+            background-color: #e3f2fd;
+            border-color: var(--accent-color);
+        }
+        
+        .time-slot.selected {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+        
+        .time-slot.booked {
+            background-color: #e0e0e0;
+            cursor: not-allowed;
+            color: #9e9e9e;
+            border-color: #e0e0e0;
+        }
+        
+        .court-groups {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .court-group {
+            flex: 1;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 2px dashed #c8e6c9;
+        }
+        
+        .court-group h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .court-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.8rem;
+        }
+        
+        .court-option {
+            text-align: center;
+            padding: 1rem 0.5rem;
+            border: 2px solid #c8e6c9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: white;
+            font-weight: 500;
+        }
+        
+        .court-option:hover {
+            border-color: var(--primary-color);
+            background-color: #e8f5e9;
+        }
+        
+        .court-option.selected {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .court-option.booked {
+            border-color: #e0e0e0;
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            color: #9e9e9e;
+        }
+        
+        .record-item {
+            padding: 1.5rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .record-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .record-info h3 {
+            margin-bottom: 0.7rem;
+            color: var(--dark-color);
+        }
+        
+        .record-info p {
+            margin-bottom: 0.3rem;
+            color: #666;
+        }
+        
+        .record-status {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-completed {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        footer {
+            background: linear-gradient(135deg, var(--dark-color), #1a252f);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: #bbdefb;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: white;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.5s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 400px;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background-color: var(--success-color);
+        }
+        
+        .notification.error {
+            background-color: var(--danger-color);
+        }
+        
+        .weather-info {
+            background: linear-gradient(135deg, #4fc3f7, #29b6f6);
+            color: white;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .weather-details {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .weather-icon {
+            font-size: 2.5rem;
+        }
+        
+        .feature-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        
+        .feature-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .campus-info {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .campus-icon {
+            font-size: 2.5rem;
+        }
+        
+        .contact-info {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 4px solid var(--accent-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .admin-panel {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .admin-panel h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .admin-code {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            nav ul li {
+                margin: 0.3rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .court-groups {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .record-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .record-actions {
+                align-self: stretch;
+                text-align: center;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .weather-info, .campus-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+        }
+        
+        /* 隐藏Netlify表单的默认样式 */
+        .netlify-form {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-basketball-ball"></i>
+                    <span>重庆商务职业学院户外篮球场预约系统</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home"></i> 首页</a></li>
+                        <li><a href="#" class="nav-link" data-page="booking"><i class="fas fa-calendar-alt"></i> 场地预约</a></li>
+                        <li><a href="#" class="nav-link" data-page="records"><i class="fas fa-history"></i> 预约记录</a></li>
+                        <li><a href="#" class="nav-link" data-page="admin"><i class="fas fa-user-shield"></i> 管理</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 首页 -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <h1>重庆商务职业学院户外篮球场预约系统</h1>
+                <p>便捷预约校内户外篮球场地，享受阳光与运动的乐趣</p>
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                    <a href="#" class="btn nav-link" data-page="booking"><i class="fas fa-basketball-ball"></i> 立即预约</a>
+                    <a href="#" class="btn btn-secondary nav-link" data-page="records"><i class="fas fa-history"></i> 查看记录</a>
+                </div>
+            </div>
+            
+            <div class="campus-info">
+                <div class="campus-icon">
+                    <i class="fas fa-university"></i>
+                </div>
+                <div>
+                    <h3>重庆商务职业学院校内户外篮球场地</h3>
+                    <p>位于校园体育区，环境优美，设施齐全，为师生提供优质的户外运动场所</p>
+                </div>
+            </div>
+            
+            <div class="weather-info">
+                <div class="weather-details">
+                    <div class="weather-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div>
+                        <h3>今日天气适合户外运动</h3>
+                        <p>晴，25°C，微风，适宜篮球活动</p>
+                    </div>
+                </div>
+                <div>
+                    <i class="fas fa-info-circle"></i> 户外运动请注意防晒和补水
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-info-circle"></i> 系统功能</h2>
+                <div class="feature-cards">
+                    <div class="feature-card" data-page="booking">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3>场地预约</h3>
+                        <p>选择日期、时间段和场地进行预约，系统会实时显示可用时间段。</p>
+                    </div>
+                    <div class="feature-card" data-page="records">
+                        <i class="fas fa-clipboard-list"></i>
+                        <h3>记录查询</h3>
+                        <p>查看您的预约记录和场地使用情况，合理安排运动时间。</p>
+                    </div>
+                    <div class="feature-card" data-page="admin">
+                        <i class="fas fa-user-shield"></i>
+                        <h3>管理功能</h3>
+                        <p>管理员可以查看所有预约记录，了解场地使用情况。</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-map-marked-alt"></i> 场地信息</h2>
+                <div class="court-groups">
+                    <div class="court-group">
+                        <h3><i class="fas fa-tree"></i> A区场地 (A-1 到 A-10)</h3>
+                        <p>标准户外篮球场，配备专业塑胶地面和夜间照明系统，周围绿树环绕，环境优美。</p>
+                        <div class="court-options" id="a-courts-preview">
+                            <!-- A区场地预览 -->
+                        </div>
+                    </div>
+                    <div class="court-group">
+                        <h3><i class="fas fa-mountain"></i> H区场地 (H-1 到 H-2)</h3>
+                        <p>半场篮球场地，适合小型比赛和训练，位于校园高地，视野开阔。</p>
+                        <div class="court-options" id="h-courts-preview">
+                            <!-- H区场地预览 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 预约页面 -->
+        <section id="booking" class="page">
+            <div class="card">
+                <h2><i class="fas fa-calendar-alt"></i> 户外篮球场预约</h2>
+                <!-- Netlify表单 - 用于收集数据 -->
+                <form name="booking-form" netlify netlify-honeypot="bot-field" class="netlify-form">
+                    <input type="hidden" name="form-name" value="booking-form" />
+                    <p class="hidden">
+                        <label>不要填写这个字段（防垃圾邮件）: <input name="bot-field" /></label>
+                    </p>
+                    <input type="hidden" name="date" id="netlify-date">
+                    <input type="hidden" name="court" id="netlify-court">
+                    <input type="hidden" name="time" id="netlify-time">
+                    <input type="hidden" name="purpose" id="netlify-purpose">
+                    <input type="hidden" name="contact" id="netlify-contact">
+                    <input type="hidden" name="notes" id="netlify-notes">
+                </form>
+                
+                <!-- 用户可见的表单 -->
+                <form id="booking-form">
+                    <div class="form-group">
+                        <label for="booking-date"><i class="far fa-calendar"></i> 选择日期</label>
+                        <input type="date" id="booking-date" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> 选择场地</label>
+                        <div class="court-groups">
+                            <div class="court-group">
+                                <h3><i class="fas fa-tree"></i> A区场地</h3>
+                                <div class="court-options" id="a-courts">
+                                    <!-- A区场地选项将由JavaScript动态生成 -->
+                                </div>
+                            </div>
+                            <div class="court-group">
+                                <h3><i class="fas fa-mountain"></i> H区场地</h3>
+                                <div class="court-options" id="h-courts">
+                                    <!-- H区场地选项将由JavaScript动态生成 -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="far fa-clock"></i> 选择时间段</label>
+                        <div class="time-slots">
+                            <!-- 时间段将由JavaScript动态生成 -->
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="booking-purpose"><i class="fas fa-basketball-ball"></i> 使用目的</label>
+                        <input type="text" id="booking-purpose" placeholder="例如：球队训练、友谊赛、个人练习等" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="booking-contact"><i class="fas fa-phone"></i> 联系方式</label>
+                        <input type="text" id="booking-contact" placeholder="请输入您的手机号码" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="booking-notes"><i class="far fa-sticky-note"></i> 备注</label>
+                        <textarea id="booking-notes" placeholder="如有特殊需求请在此说明（如需要夜间照明等）"></textarea>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <p><i class="fas fa-info-circle"></i> 预约提交后，系统将自动确认，无需等待审核。</p>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                        <i class="fas fa-paper-plane"></i> 提交预约
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 记录页面 -->
+        <section id="records" class="page">
+            <div class="card">
+                <h2><i class="fas fa-history"></i> 我的预约记录</h2>
+                <div id="booking-records">
+                    <!-- 预约记录将由JavaScript动态生成 -->
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无预约记录
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-clipboard-list"></i> 场地使用情况</h2>
+                <div id="court-status">
+                    <!-- 场地状态将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 管理页面 -->
+        <section id="admin" class="page">
+            <div class="card">
+                <h2><i class="fas fa-user-shield"></i> 管理功能</h2>
+                <p>此页面为管理员查看所有预约记录的页面。在实际部署中，您可以通过Netlify的后台查看所有提交的预约申请。</p>
+                
+                <div class="admin-panel">
+                    <h3><i class="fas fa-info-circle"></i> Netlify部署说明</h3>
+                    <p>要将此系统部署到Netlify并查看所有预约申请，请按照以下步骤操作：</p>
+                    <ol style="padding-left: 1.5rem; margin-top: 1rem; line-height: 1.8;">
+                        <li>将本HTML文件保存为<code>index.html</code></li>
+                        <li>创建一个GitHub仓库，并将文件上传</li>
+                        <li>登录Netlify，选择"New site from Git"</li>
+                        <li>连接您的GitHub仓库并部署</li>
+                        <li>部署完成后，在Netlify后台的"Forms"选项卡中查看所有预约提交</li>
+                    </ol>
+                    
+                    <div class="admin-code">
+                        // 在Netlify后台查看预约记录的步骤：<br>
+                        1. 登录Netlify账户<br>
+                        2. 选择您的站点<br>
+                        3. 点击左侧菜单的"Forms"<br>
+                        4. 选择"booking-form"查看所有提交
+                    </div>
+                </div>
+                
+                <div id="all-bookings" style="margin-top: 2rem;">
+                    <h3><i class="fas fa-list"></i> 所有预约记录（模拟数据）</h3>
+                    <!-- 所有预约记录将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <p><strong>重庆商务职业学院户外篮球场预约系统</strong> &copy; 2025</p>
+                    <p>享受户外运动，拥抱健康生活</p>
+                </div>
+                <div class="footer-links">
+                    <a href="mailto:2874185720@qq.com"><i class="fas fa-envelope"></i> 2874185720@qq.com</a>
+                    <a href="#"><i class="fas fa-map-marker-alt"></i> 重庆商务职业学院校内户外篮球场地</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // 页面导航功能
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetPage = this.getAttribute('data-page');
+                
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-link').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // 显示目标页面
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(targetPage).classList.add('active');
+                
+                // 滚动到顶部
+                window.scrollTo(0, 0);
+                
+                // 如果是预约页面，更新时间段显示
+                if (targetPage === 'booking') {
+                    updateTimeSlots();
+                } else if (targetPage === 'records') {
+                    updateBookingRecords();
+                    updateCourtStatus();
+                } else if (targetPage === 'admin') {
+                    updateAllBookings();
+                }
+            });
+        });
+
+        // 为功能卡片添加跳转功能
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const targetPage = this.getAttribute('data-page');
+                
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-link').forEach(nav => {
+                    nav.classList.remove('active');
+                });
+                document.querySelector(`.nav-link[data-page="${targetPage}"]`).classList.add('active');
+                
+                // 显示目标页面
+                document.querySelectorAll('.page').forEach(page => {
+                    page.classList.remove('active');
+                });
+                document.getElementById(targetPage).classList.add('active');
+                
+                // 滚动到顶部
+                window.scrollTo(0, 0);
+                
+                // 如果是预约页面，更新时间段显示
+                if (targetPage === 'booking') {
+                    updateTimeSlots();
+                } else if (targetPage === 'records') {
+                    updateBookingRecords();
+                    updateCourtStatus();
+                } else if (targetPage === 'admin') {
+                    updateAllBookings();
+                }
+            });
+        });
+
+        // 显示通知
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            notification.className = 'notification';
+            notification.classList.add(type, 'show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // 场地数据
+        const courts = {
+            'A区': ['A-1', 'A-2', 'A-3', 'A-4', 'A-5', 'A-6', 'A-7', 'A-8', 'A-9', 'A-10'],
+            'H区': ['H-1', 'H-2']
+        };
+
+        // 初始化场地选项
+        function initializeCourtOptions() {
+            // 首页预览 - 静态显示
+            const aCourtsPreview = document.getElementById('a-courts-preview');
+            const hCourtsPreview = document.getElementById('h-courts-preview');
+            
+            courts['A区'].forEach(court => {
+                const courtOption = document.createElement('div');
+                courtOption.className = 'court-option';
+                courtOption.textContent = court;
+                aCourtsPreview.appendChild(courtOption);
+            });
+            
+            courts['H区'].forEach(court => {
+                const courtOption = document.createElement('div');
+                courtOption.className = 'court-option';
+                courtOption.textContent = court;
+                hCourtsPreview.appendChild(courtOption);
+            });
+            
+            // 预约页面的场地选项
+            const aCourtsContainer = document.getElementById('a-courts');
+            const hCourtsContainer = document.getElementById('h-courts');
+            
+            courts['A区'].forEach(court => {
+                const courtOption = document.createElement('div');
+                courtOption.className = 'court-option';
+                courtOption.textContent = court;
+                courtOption.setAttribute('data-court', court);
+                
+                courtOption.addEventListener('click', function() {
+                    if (!this.classList.contains('booked')) {
+                        document.querySelectorAll('.court-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        updateTimeSlots();
+                    }
+                });
+                
+                aCourtsContainer.appendChild(courtOption);
+            });
+            
+            courts['H区'].forEach(court => {
+                const courtOption = document.createElement('div');
+                courtOption.className = 'court-option';
+                courtOption.textContent = court;
+                courtOption.setAttribute('data-court', court);
+                
+                courtOption.addEventListener('click', function() {
+                    if (!this.classList.contains('booked')) {
+                        document.querySelectorAll('.court-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        updateTimeSlots();
+                    }
+                });
+                
+                hCourtsContainer.appendChild(courtOption);
+            });
+        }
+
+        // 预约功能
+        const bookingForm = document.getElementById('booking-form');
+        const timeSlotsContainer = document.querySelector('.time-slots');
+        
+        // 更新时间段显示
+        function updateTimeSlots() {
+            const selectedDate = document.getElementById('booking-date').value;
+            const selectedCourt = document.querySelector('.court-option.selected');
+            
+            if (!selectedDate || !selectedCourt) {
+                return;
+            }
+            
+            const court = selectedCourt.getAttribute('data-court');
+            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            
+            // 获取该日期和场地的已预约时间段
+            const bookedTimes = bookings
+                .filter(booking => 
+                    booking.date === selectedDate && 
+                    booking.court === court
+                )
+                .map(booking => booking.time);
+            
+            generateTimeSlots(bookedTimes);
+        }
+        
+        // 生成时间段
+        function generateTimeSlots(bookedTimes = []) {
+            timeSlotsContainer.innerHTML = '';
+            const startHour = 6; // 早上6点开始（户外场地开放早）
+            const endHour = 22; // 晚上10点结束
+            
+            for (let hour = startHour; hour < endHour; hour++) {
+                const timeSlot = document.createElement('div');
+                timeSlot.className = 'time-slot';
+                
+                // 区分白天和晚上时间段
+                if (hour < 18) {
+                    timeSlot.innerHTML = `<i class="fas fa-sun"></i> ${hour}:00 - ${hour+1}:00`;
+                } else {
+                    timeSlot.innerHTML = `<i class="fas fa-moon"></i> ${hour}:00 - ${hour+1}:00`;
+                }
+                
+                const timeSlotStr = `${hour}:00-${hour+1}:00`;
+                timeSlot.setAttribute('data-time', timeSlotStr);
+                
+                // 检查当前时间段是否已被预约
+                if (bookedTimes.includes(timeSlotStr)) {
+                    timeSlot.classList.add('booked');
+                }
+                
+                timeSlot.addEventListener('click', function() {
+                    if (!this.classList.contains('booked')) {
+                        document.querySelectorAll('.time-slot').forEach(slot => {
+                            slot.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    }
+                });
+                
+                timeSlotsContainer.appendChild(timeSlot);
+            }
+        }
+        
+        // 初始化时间段
+        generateTimeSlots();
+        
+        // 日期选择变化时更新时间段
+        document.getElementById('booking-date').addEventListener('change', function() {
+            updateTimeSlots();
+        });
+        
+        // 处理预约表单提交
+        bookingForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const date = document.getElementById('booking-date').value;
+            const selectedCourt = document.querySelector('.court-option.selected');
+            const selectedTime = document.querySelector('.time-slot.selected');
+            const purpose = document.getElementById('booking-purpose').value;
+            const contact = document.getElementById('booking-contact').value;
+            
+            if (!date || !selectedCourt || !selectedTime || !purpose || !contact) {
+                showNotification('请填写完整的预约信息', 'error');
+                return;
+            }
+            
+            // 简单的手机号验证
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(contact)) {
+                showNotification('请输入有效的手机号码', 'error');
+                return;
+            }
+            
+            // 设置Netlify表单的隐藏字段值
+            document.getElementById('netlify-date').value = date;
+            document.getElementById('netlify-court').value = selectedCourt.getAttribute('data-court');
+            document.getElementById('netlify-time').value = selectedTime.getAttribute('data-time');
+            document.getElementById('netlify-purpose').value = purpose;
+            document.getElementById('netlify-contact').value = contact;
+            document.getElementById('netlify-notes').value = document.getElementById('booking-notes').value;
+            
+            // 提交Netlify表单
+            const netlifyForm = document.querySelector('form[netlify]');
+            
+            // 创建FormData对象并提交
+            const formData = new FormData(netlifyForm);
+            
+            fetch('/', {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    // 同时保存到本地存储（用于前端显示）
+                    const booking = {
+                        id: Date.now(),
+                        date: date,
+                        court: selectedCourt.getAttribute('data-court'),
+                        time: selectedTime.getAttribute('data-time'),
+                        purpose: purpose,
+                        contact: contact,
+                        notes: document.getElementById('booking-notes').value,
+                        status: 'confirmed',
+                        submitted: new Date().toLocaleString()
+                    };
+                    
+                    saveBooking(booking);
+                    showNotification('户外场地预约成功！', 'success');
+                    bookingForm.reset();
+                    document.querySelectorAll('.court-option, .time-slot').forEach(el => {
+                        el.classList.remove('selected');
+                    });
+                    
+                    // 更新时间段显示
+                    updateTimeSlots();
+                    
+                    // 自动跳转到记录页面
+                    setTimeout(() => {
+                        document.querySelector('.nav-link[data-page="records"]').click();
+                    }, 1500);
+                } else {
+                    showNotification('预约提交失败，请重试', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('网络错误，请检查连接后重试', 'error');
+            });
+        });
+
+        // 数据存储功能（使用localStorage模拟）
+        function saveBooking(booking) {
+            let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            bookings.push(booking);
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            updateBookingRecords();
+        }
+        
+        // 更新记录显示
+        function updateBookingRecords() {
+            const recordsContainer = document.getElementById('booking-records');
+            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            
+            if (bookings.length === 0) {
+                recordsContainer.innerHTML = `
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无预约记录
+                    </p>
+                `;
+                return;
+            }
+            
+            recordsContainer.innerHTML = '';
+            bookings.forEach(booking => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                
+                const statusClass = `status-${booking.status}`;
+                
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <h3>${booking.date} ${booking.time} - ${booking.court}场地</h3>
+                        <p><i class="fas fa-basketball-ball"></i> 使用目的: ${booking.purpose}</p>
+                        <p><i class="fas fa-phone"></i> 联系方式: ${booking.contact}</p>
+                        <p><i class="far fa-clock"></i> 提交时间: ${booking.submitted}</p>
+                        ${booking.notes ? `<p><i class="far fa-sticky-note"></i> 备注: ${booking.notes}</p>` : ''}
+                    </div>
+                    <div class="record-actions">
+                        <span class="record-status ${statusClass}">${getStatusText(booking.status)}</span>
+                    </div>
+                `;
+                
+                recordsContainer.appendChild(recordItem);
+            });
+        }
+        
+        // 更新场地状态
+        function updateCourtStatus() {
+            const courtStatusContainer = document.getElementById('court-status');
+            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 获取今天的预约
+            const todayBookings = bookings.filter(booking => booking.date === today);
+            
+            if (todayBookings.length === 0) {
+                courtStatusContainer.innerHTML = `
+                    <p style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-calendar-day" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        今日暂无场地预约
+                    </p>
+                `;
+                return;
+            }
+            
+            courtStatusContainer.innerHTML = '<h3>今日场地使用情况</h3>';
+            
+            // 按场地分组
+            const courtGroups = {};
+            todayBookings.forEach(booking => {
+                if (!courtGroups[booking.court]) {
+                    courtGroups[booking.court] = [];
+                }
+                courtGroups[booking.court].push(booking);
+            });
+            
+            // 显示每个场地的预约情况
+            Object.keys(courtGroups).forEach(court => {
+                const courtCard = document.createElement('div');
+                courtCard.className = 'card';
+                courtCard.style.padding = '1rem';
+                courtCard.style.marginBottom = '1rem';
+                
+                let bookingsHTML = courtGroups[court].map(booking => 
+                    `<p><strong>${booking.time}</strong> - ${booking.purpose} (${booking.contact})</p>`
+                ).join('');
+                
+                courtCard.innerHTML = `
+                    <h4>${court}场地</h4>
+                    ${bookingsHTML}
+                `;
+                
+                courtStatusContainer.appendChild(courtCard);
+            });
+        }
+        
+        // 更新所有预约记录（管理页面）
+        function updateAllBookings() {
+            const allBookingsContainer = document.getElementById('all-bookings');
+            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            
+            if (bookings.length === 0) {
+                allBookingsContainer.innerHTML += `
+                    <p style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无预约记录
+                    </p>
+                `;
+                return;
+            }
+            
+            // 按日期分组
+            const dateGroups = {};
+            bookings.forEach(booking => {
+                if (!dateGroups[booking.date]) {
+                    dateGroups[booking.date] = [];
+                }
+                dateGroups[booking.date].push(booking);
+            });
+            
+            // 显示每个日期的预约情况
+            Object.keys(dateGroups).sort().reverse().forEach(date => {
+                const dateCard = document.createElement('div');
+                dateCard.className = 'card';
+                dateCard.style.padding = '1rem';
+                dateCard.style.marginBottom = '1rem';
+                
+                let bookingsHTML = dateGroups[date].map(booking => 
+                    `<div style="border-bottom: 1px solid #eee; padding: 0.5rem 0;">
+                        <p><strong>${booking.court}场地 - ${booking.time}</strong></p>
+                        <p>用途: ${booking.purpose} | 联系方式: ${booking.contact}</p>
+                        <p style="font-size: 0.9rem; color: #666;">提交时间: ${booking.submitted}</p>
+                    </div>`
+                ).join('');
+                
+                dateCard.innerHTML = `
+                    <h4>${date}</h4>
+                    ${bookingsHTML}
+                `;
+                
+                allBookingsContainer.appendChild(dateCard);
+            });
+        }
+        
+        // 状态文本转换
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': '待处理',
+                'confirmed': '已确认',
+                'completed': '已完成',
+                'cancelled': '已取消'
+            };
+            return statusMap[status] || status;
+        }
+        
+        // 初始化场地选项
+        initializeCourtOptions();
+        
+        // 初始化记录显示
+        updateBookingRecords();
+        updateCourtStatus();
+        updateAllBookings();
+        
+        // 设置默认日期为今天
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('booking-date').value = today;
+        document.getElementById('booking-date').min = today;
+        
+        // 添加一些示例数据（首次加载时）
+        if (!localStorage.getItem('bookings')) {
+            // 添加示例预约记录
+            const exampleBooking1 = {
+                id: Date.now() - 1000,
+                date: today,
+                court: 'A-3',
+                time: '16:00-17:00',
+                purpose: '球队训练',
+                contact: '138****5678',
+                notes: '需要准备饮用水',
+                status: 'confirmed',
+                submitted: new Date().toLocaleString()
+            };
+            
+            const exampleBooking2 = {
+                id: Date.now() - 2000,
+                date: today,
+                court: 'H-1',
+                time: '18:00-19:00',
+                purpose: '友谊赛',
+                contact: '139****1234',
+                notes: '',
+                status: 'confirmed',
+                submitted: new Date(Date.now() - 3600000).toLocaleString()
+            };
+            
+            saveBooking(exampleBooking1);
+            saveBooking(exampleBooking2);
+        }
+    </script>
+</body>
+</html>

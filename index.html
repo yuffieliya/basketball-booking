@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>重庆商务职业学院户外篮球场预约系统</title>
+    <title>重庆商务职业学院户外篮球场管理系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -94,6 +94,15 @@
             transform: translateY(-2px);
         }
         
+        .login-btn {
+            background-color: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .login-btn:hover {
+            background-color: rgba(255,255,255,0.3);
+        }
+        
         main {
             padding: 2rem 0;
             min-height: calc(100vh - 150px);
@@ -116,7 +125,7 @@
         .hero {
             text-align: center;
             padding: 3rem 2rem;
-            background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(76, 175, 80, 0.9));
+            background: linear-gradient(rgba(46, 125, 50, 0.85), rgba(76, 175, 80, 0.9)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%234caf50"/><circle cx="50" cy="50" r="40" fill="%23ffd54f" opacity="0.3"/></svg>');
             background-size: cover;
             color: white;
             border-radius: 15px;
@@ -527,29 +536,105 @@
             margin-top: 1rem;
         }
         
-        .admin-panel {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .admin-panel h3 {
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            display: flex;
+        /* 登录模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
         }
         
-        .admin-code {
-            background: #2c3e50;
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary-color);
+            margin: 0;
+        }
+        
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .close-modal:hover {
+            color: var(--dark-color);
+        }
+        
+        .admin-only {
+            display: none;
+        }
+        
+        .admin-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .admin-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .admin-btn.confirm {
+            background-color: var(--success-color);
             color: white;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: monospace;
-            margin-top: 1rem;
-            overflow-x: auto;
+        }
+        
+        .admin-btn.confirm:hover {
+            background-color: #3d8b40;
+        }
+        
+        .admin-btn.complete {
+            background-color: var(--accent-color);
+            color: white;
+        }
+        
+        .admin-btn.complete:hover {
+            background-color: #1976d2;
+        }
+        
+        .admin-btn.cancel {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .admin-btn.cancel:hover {
+            background-color: #d32f2f;
         }
         
         @media (max-width: 768px) {
@@ -607,28 +692,61 @@
                 text-align: center;
                 gap: 1rem;
             }
-        }
-        
-        /* 隐藏Netlify表单的默认样式 */
-        .netlify-form {
-            display: none;
+            
+            .admin-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .admin-btn {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 登录模态框 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-user-shield"></i> 管理员登录</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username"><i class="fas fa-user"></i> 用户名</label>
+                    <input type="text" id="username" placeholder="请输入管理员用户名" required>
+                </div>
+                <div class="form-group">
+                    <label for="password"><i class="fas fa-lock"></i> 密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center;">
+                    <i class="fas fa-sign-in-alt"></i> 登录
+                </button>
+            </form>
+            <div style="margin-top: 1rem; text-align: center; color: #666;">
+                <p>管理员账号: Admin, 密码: 123456</p>
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="container">
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-basketball-ball"></i>
-                    <span>重庆商务职业学院户外篮球场预约系统</span>
+                    <span>重庆商务职业学院户外篮球场管理系统</span>
                 </div>
                 <nav>
                     <ul>
                         <li><a href="#" class="nav-link active" data-page="home"><i class="fas fa-home"></i> 首页</a></li>
                         <li><a href="#" class="nav-link" data-page="booking"><i class="fas fa-calendar-alt"></i> 场地预约</a></li>
-                        <li><a href="#" class="nav-link" data-page="records"><i class="fas fa-history"></i> 预约记录</a></li>
-                        <li><a href="#" class="nav-link" data-page="admin"><i class="fas fa-user-shield"></i> 管理</a></li>
+                        <li><a href="#" class="nav-link" data-page="report"><i class="fas fa-tools"></i> 维修上报</a></li>
+                        <li><a href="#" class="nav-link" data-page="records"><i class="fas fa-history"></i> 我的记录</a></li>
+                        <li class="admin-only"><a href="#" class="nav-link" data-page="admin"><i class="fas fa-user-shield"></i> 管理后台</a></li>
+                        <li><a href="#" class="nav-link login-btn" id="login-btn"><i class="fas fa-sign-in-alt"></i> 登录</a></li>
+                        <li class="admin-only"><a href="#" class="nav-link" id="logout-btn"><i class="fas fa-sign-out-alt"></i> 退出</a></li>
                     </ul>
                 </nav>
             </div>
@@ -639,11 +757,11 @@
         <!-- 首页 -->
         <section id="home" class="page active">
             <div class="hero">
-                <h1>重庆商务职业学院户外篮球场预约系统</h1>
-                <p>便捷预约校内户外篮球场地，享受阳光与运动的乐趣</p>
+                <h1>重庆商务职业学院户外篮球场管理系统</h1>
+                <p>便捷预约校内户外篮球场地，享受阳光与运动的乐趣，及时上报维修问题，提升场地使用体验</p>
                 <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
                     <a href="#" class="btn nav-link" data-page="booking"><i class="fas fa-basketball-ball"></i> 立即预约</a>
-                    <a href="#" class="btn btn-secondary nav-link" data-page="records"><i class="fas fa-history"></i> 查看记录</a>
+                    <a href="#" class="btn btn-secondary nav-link" data-page="report"><i class="fas fa-tools"></i> 上报问题</a>
                 </div>
             </div>
             
@@ -678,17 +796,17 @@
                     <div class="feature-card" data-page="booking">
                         <i class="fas fa-calendar-check"></i>
                         <h3>场地预约</h3>
-                        <p>选择日期、时间段和场地进行预约，系统会实时显示可用时间段。</p>
+                        <p>选择日期、时间段和场地进行预约，系统会实时显示可用时间段，户外场地更受天气影响，请合理安排。</p>
+                    </div>
+                    <div class="feature-card" data-page="report">
+                        <i class="fas fa-tools"></i>
+                        <h3>维修上报</h3>
+                        <p>发现场地设施问题，可及时上报并上传图片，管理员会尽快处理，确保户外场地的安全性。</p>
                     </div>
                     <div class="feature-card" data-page="records">
                         <i class="fas fa-clipboard-list"></i>
                         <h3>记录查询</h3>
-                        <p>查看您的预约记录和场地使用情况，合理安排运动时间。</p>
-                    </div>
-                    <div class="feature-card" data-page="admin">
-                        <i class="fas fa-user-shield"></i>
-                        <h3>管理功能</h3>
-                        <p>管理员可以查看所有预约记录，了解场地使用情况。</p>
+                        <p>查看您的预约记录和维修上报记录，了解处理状态，户外活动记录一目了然。</p>
                     </div>
                 </div>
             </div>
@@ -712,27 +830,23 @@
                     </div>
                 </div>
             </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-book-open"></i> 使用指南</h2>
+                <ol style="padding-left: 1.5rem; line-height: 2;">
+                    <li><strong>预约场地：</strong>点击"场地预约"选择您想要使用的日期、时间和场地，户外场地请关注天气预报。</li>
+                    <li><strong>提交申请：</strong>提交预约申请后，等待系统确认，户外场地如遇恶劣天气可能会调整。</li>
+                    <li><strong>取消预约：</strong>如需取消预约，请在"我的记录"中操作，方便他人使用。</li>
+                    <li><strong>上报问题：</strong>发现场地设施问题时，使用"维修上报"功能提交问题，户外设施易受自然因素影响。</li>
+                    <li><strong>查看状态：</strong>在"我的记录"中查看预约和维修上报的处理状态。</li>
+                </ol>
+            </div>
         </section>
 
         <!-- 预约页面 -->
         <section id="booking" class="page">
             <div class="card">
                 <h2><i class="fas fa-calendar-alt"></i> 户外篮球场预约</h2>
-                <!-- Netlify表单 - 用于收集数据 -->
-                <form name="booking-form" netlify netlify-honeypot="bot-field" class="netlify-form">
-                    <input type="hidden" name="form-name" value="booking-form" />
-                    <p class="hidden">
-                        <label>不要填写这个字段（防垃圾邮件）: <input name="bot-field" /></label>
-                    </p>
-                    <input type="hidden" name="date" id="netlify-date">
-                    <input type="hidden" name="court" id="netlify-court">
-                    <input type="hidden" name="time" id="netlify-time">
-                    <input type="hidden" name="purpose" id="netlify-purpose">
-                    <input type="hidden" name="contact" id="netlify-contact">
-                    <input type="hidden" name="notes" id="netlify-notes">
-                </form>
-                
-                <!-- 用户可见的表单 -->
                 <form id="booking-form">
                     <div class="form-group">
                         <label for="booking-date"><i class="far fa-calendar"></i> 选择日期</label>
@@ -780,11 +894,64 @@
                     </div>
                     
                     <div class="contact-info">
-                        <p><i class="fas fa-info-circle"></i> 预约提交后，系统将自动确认，无需等待审核。</p>
+                        <p><i class="fas fa-info-circle"></i> 预约成功后，我们将通过您提供的联系方式与您确认预约信息。</p>
                     </div>
                     
                     <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
                         <i class="fas fa-paper-plane"></i> 提交预约
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- 维修上报页面 -->
+        <section id="report" class="page">
+            <div class="card">
+                <h2><i class="fas fa-tools"></i> 维修问题上报</h2>
+                <form id="report-form">
+                    <div class="form-group">
+                        <label for="report-court"><i class="fas fa-map-marker-alt"></i> 问题场地</label>
+                        <select id="report-court" required>
+                            <option value="">请选择场地</option>
+                            <!-- 场地选项将由JavaScript动态生成 -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-type"><i class="fas fa-cog"></i> 问题类型</label>
+                        <select id="report-type" required>
+                            <option value="">请选择问题类型</option>
+                            <option value="basketball_rim">篮筐问题</option>
+                            <option value="net">篮网问题</option>
+                            <option value="floor">地面问题</option>
+                            <option value="lighting">照明问题</option>
+                            <option value="fence">围栏问题</option>
+                            <option value="bench">长椅问题</option>
+                            <option value="other">其他问题</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-contact"><i class="fas fa-phone"></i> 联系方式</label>
+                        <input type="text" id="report-contact" placeholder="请输入您的手机号码" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-description"><i class="fas fa-edit"></i> 问题描述</label>
+                        <textarea id="report-description" placeholder="请详细描述问题情况（户外设施易受天气影响，请说明是否与天气有关）" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="report-image"><i class="fas fa-camera"></i> 上传图片（可选）</label>
+                        <input type="file" id="report-image" accept="image/*">
+                    </div>
+                    
+                    <div class="contact-info">
+                        <p><i class="fas fa-info-circle"></i> 问题上报后，我们将通过您提供的联系方式与您联系，确认维修进度。</p>
+                    </div>
+                    
+                    <button type="submit" class="btn" style="width: 100%; justify-content: center; margin-top: 1rem;">
+                        <i class="fas fa-paper-plane"></i> 提交报告
                     </button>
                 </form>
             </div>
@@ -804,42 +971,38 @@
             </div>
             
             <div class="card">
-                <h2><i class="fas fa-clipboard-list"></i> 场地使用情况</h2>
-                <div id="court-status">
-                    <!-- 场地状态将由JavaScript动态生成 -->
+                <h2><i class="fas fa-clipboard-list"></i> 我的维修上报记录</h2>
+                <div id="report-records">
+                    <!-- 维修记录将由JavaScript动态生成 -->
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无维修上报记录
+                    </p>
                 </div>
             </div>
         </section>
 
-        <!-- 管理页面 -->
+        <!-- 管理后台页面 -->
         <section id="admin" class="page">
             <div class="card">
-                <h2><i class="fas fa-user-shield"></i> 管理功能</h2>
-                <p>此页面为管理员查看所有预约记录的页面。在实际部署中，您可以通过Netlify的后台查看所有提交的预约申请。</p>
-                
-                <div class="admin-panel">
-                    <h3><i class="fas fa-info-circle"></i> Netlify部署说明</h3>
-                    <p>要将此系统部署到Netlify并查看所有预约申请，请按照以下步骤操作：</p>
-                    <ol style="padding-left: 1.5rem; margin-top: 1rem; line-height: 1.8;">
-                        <li>将本HTML文件保存为<code>index.html</code></li>
-                        <li>创建一个GitHub仓库，并将文件上传</li>
-                        <li>登录Netlify，选择"New site from Git"</li>
-                        <li>连接您的GitHub仓库并部署</li>
-                        <li>部署完成后，在Netlify后台的"Forms"选项卡中查看所有预约提交</li>
-                    </ol>
-                    
-                    <div class="admin-code">
-                        // 在Netlify后台查看预约记录的步骤：<br>
-                        1. 登录Netlify账户<br>
-                        2. 选择您的站点<br>
-                        3. 点击左侧菜单的"Forms"<br>
-                        4. 选择"booking-form"查看所有提交
-                    </div>
+                <h2><i class="fas fa-user-shield"></i> 管理后台 - 预约管理</h2>
+                <div id="admin-booking-records">
+                    <!-- 管理员预约记录将由JavaScript动态生成 -->
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无预约记录
+                    </p>
                 </div>
-                
-                <div id="all-bookings" style="margin-top: 2rem;">
-                    <h3><i class="fas fa-list"></i> 所有预约记录（模拟数据）</h3>
-                    <!-- 所有预约记录将由JavaScript动态生成 -->
+            </div>
+            
+            <div class="card">
+                <h2><i class="fas fa-user-shield"></i> 管理后台 - 维修上报管理</h2>
+                <div id="admin-report-records">
+                    <!-- 管理员维修记录将由JavaScript动态生成 -->
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无维修上报记录
+                    </p>
                 </div>
             </div>
         </section>
@@ -849,7 +1012,7 @@
         <div class="container">
             <div class="footer-content">
                 <div>
-                    <p><strong>重庆商务职业学院户外篮球场预约系统</strong> &copy; 2025</p>
+                    <p><strong>重庆商务职业学院户外篮球场管理系统</strong> &copy; 2025</p>
                     <p>享受户外运动，拥抱健康生活</p>
                 </div>
                 <div class="footer-links">
@@ -863,11 +1026,35 @@
     <div id="notification" class="notification"></div>
 
     <script>
+        // 登录状态管理
+        let isAdminLoggedIn = localStorage.getItem('isAdminLoggedIn') === 'true';
+        
+        // 初始化登录状态
+        function initLoginState() {
+            if (isAdminLoggedIn) {
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.style.display = 'block';
+                });
+                document.getElementById('login-btn').parentElement.style.display = 'none';
+            } else {
+                document.querySelectorAll('.admin-only').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.getElementById('login-btn').parentElement.style.display = 'block';
+            }
+        }
+        
         // 页面导航功能
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
                 const targetPage = this.getAttribute('data-page');
+                
+                // 如果点击的是管理后台但未登录，显示登录模态框
+                if (targetPage === 'admin' && !isAdminLoggedIn) {
+                    showLoginModal();
+                    return;
+                }
                 
                 // 更新导航激活状态
                 document.querySelectorAll('.nav-link').forEach(nav => {
@@ -887,11 +1074,6 @@
                 // 如果是预约页面，更新时间段显示
                 if (targetPage === 'booking') {
                     updateTimeSlots();
-                } else if (targetPage === 'records') {
-                    updateBookingRecords();
-                    updateCourtStatus();
-                } else if (targetPage === 'admin') {
-                    updateAllBookings();
                 }
             });
         });
@@ -919,11 +1101,6 @@
                 // 如果是预约页面，更新时间段显示
                 if (targetPage === 'booking') {
                     updateTimeSlots();
-                } else if (targetPage === 'records') {
-                    updateBookingRecords();
-                    updateCourtStatus();
-                } else if (targetPage === 'admin') {
-                    updateAllBookings();
                 }
             });
         });
@@ -939,6 +1116,73 @@
                 notification.classList.remove('show');
             }, 4000);
         }
+
+        // 登录模态框功能
+        const loginModal = document.getElementById('login-modal');
+        const loginBtn = document.getElementById('login-btn');
+        const closeModal = document.querySelector('.close-modal');
+        const loginForm = document.getElementById('login-form');
+        
+        // 显示登录模态框
+        function showLoginModal() {
+            loginModal.style.display = 'flex';
+        }
+        
+        // 隐藏登录模态框
+        function hideLoginModal() {
+            loginModal.style.display = 'none';
+            loginForm.reset();
+        }
+        
+        // 登录按钮点击事件
+        loginBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showLoginModal();
+        });
+        
+        // 关闭按钮点击事件
+        closeModal.addEventListener('click', hideLoginModal);
+        
+        // 点击模态框外部关闭
+        loginModal.addEventListener('click', function(e) {
+            if (e.target === loginModal) {
+                hideLoginModal();
+            }
+        });
+        
+        // 登录表单提交事件
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // 验证管理员账号
+            if (username === 'Admin' && password === '123456') {
+                isAdminLoggedIn = true;
+                localStorage.setItem('isAdminLoggedIn', 'true');
+                initLoginState();
+                hideLoginModal();
+                showNotification('管理员登录成功', 'success');
+                
+                // 跳转到管理后台页面
+                document.querySelector('.nav-link[data-page="admin"]').click();
+            } else {
+                showNotification('用户名或密码错误', 'error');
+            }
+        });
+        
+        // 退出登录功能
+        document.getElementById('logout-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            isAdminLoggedIn = false;
+            localStorage.setItem('isAdminLoggedIn', 'false');
+            initLoginState();
+            showNotification('已退出管理员登录', 'success');
+            
+            // 跳转到首页
+            document.querySelector('.nav-link[data-page="home"]').click();
+        });
 
         // 场地数据
         const courts = {
@@ -1007,6 +1251,31 @@
                 
                 hCourtsContainer.appendChild(courtOption);
             });
+            
+            // 维修上报页面的场地下拉菜单
+            const reportCourtSelect = document.getElementById('report-court');
+            
+            // 添加A区场地选项
+            courts['A区'].forEach(court => {
+                const option = document.createElement('option');
+                option.value = court;
+                option.textContent = court;
+                reportCourtSelect.appendChild(option);
+            });
+            
+            // 添加H区场地选项
+            courts['H区'].forEach(court => {
+                const option = document.createElement('option');
+                option.value = court;
+                option.textContent = court;
+                reportCourtSelect.appendChild(option);
+            });
+            
+            // 添加公共区域选项
+            const commonOption = document.createElement('option');
+            commonOption.value = 'common';
+            commonOption.textContent = '公共区域（更衣室、洗手间等）';
+            reportCourtSelect.appendChild(commonOption);
         }
 
         // 预约功能
@@ -1029,7 +1298,8 @@
             const bookedTimes = bookings
                 .filter(booking => 
                     booking.date === selectedDate && 
-                    booking.court === court
+                    booking.court === court && 
+                    booking.status !== 'cancelled'
                 )
                 .map(booking => booking.time);
             
@@ -1104,61 +1374,74 @@
                 return;
             }
             
-            // 设置Netlify表单的隐藏字段值
-            document.getElementById('netlify-date').value = date;
-            document.getElementById('netlify-court').value = selectedCourt.getAttribute('data-court');
-            document.getElementById('netlify-time').value = selectedTime.getAttribute('data-time');
-            document.getElementById('netlify-purpose').value = purpose;
-            document.getElementById('netlify-contact').value = contact;
-            document.getElementById('netlify-notes').value = document.getElementById('booking-notes').value;
+            // 模拟保存预约数据
+            const booking = {
+                id: Date.now(),
+                date: date,
+                court: selectedCourt.getAttribute('data-court'),
+                time: selectedTime.getAttribute('data-time'),
+                purpose: purpose,
+                contact: contact,
+                notes: document.getElementById('booking-notes').value,
+                status: 'pending',
+                submitted: new Date().toLocaleString()
+            };
             
-            // 提交Netlify表单
-            const netlifyForm = document.querySelector('form[netlify]');
-            
-            // 创建FormData对象并提交
-            const formData = new FormData(netlifyForm);
-            
-            fetch('/', {
-                method: 'POST',
-                body: formData,
-            })
-            .then(response => {
-                if (response.ok) {
-                    // 同时保存到本地存储（用于前端显示）
-                    const booking = {
-                        id: Date.now(),
-                        date: date,
-                        court: selectedCourt.getAttribute('data-court'),
-                        time: selectedTime.getAttribute('data-time'),
-                        purpose: purpose,
-                        contact: contact,
-                        notes: document.getElementById('booking-notes').value,
-                        status: 'confirmed',
-                        submitted: new Date().toLocaleString()
-                    };
-                    
-                    saveBooking(booking);
-                    showNotification('户外场地预约成功！', 'success');
-                    bookingForm.reset();
-                    document.querySelectorAll('.court-option, .time-slot').forEach(el => {
-                        el.classList.remove('selected');
-                    });
-                    
-                    // 更新时间段显示
-                    updateTimeSlots();
-                    
-                    // 自动跳转到记录页面
-                    setTimeout(() => {
-                        document.querySelector('.nav-link[data-page="records"]').click();
-                    }, 1500);
-                } else {
-                    showNotification('预约提交失败，请重试', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('网络错误，请检查连接后重试', 'error');
+            saveBooking(booking);
+            showNotification('户外场地预约提交成功，等待确认', 'success');
+            bookingForm.reset();
+            document.querySelectorAll('.court-option, .time-slot').forEach(el => {
+                el.classList.remove('selected');
             });
+            
+            // 更新时间段显示
+            updateTimeSlots();
+            
+            // 自动跳转到记录页面
+            document.querySelector('.nav-link[data-page="records"]').click();
+        });
+
+        // 维修上报功能
+        const reportForm = document.getElementById('report-form');
+        
+        reportForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const court = document.getElementById('report-court').value;
+            const type = document.getElementById('report-type').value;
+            const contact = document.getElementById('report-contact').value;
+            const description = document.getElementById('report-description').value;
+            
+            if (!court || !type || !contact || !description) {
+                showNotification('请填写完整的问题描述', 'error');
+                return;
+            }
+            
+            // 简单的手机号验证
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneRegex.test(contact)) {
+                showNotification('请输入有效的手机号码', 'error');
+                return;
+            }
+            
+            // 模拟保存维修报告
+            const report = {
+                id: Date.now(),
+                court: court,
+                type: type,
+                contact: contact,
+                description: description,
+                image: document.getElementById('report-image').files[0] ? '已上传' : '无',
+                status: 'pending',
+                date: new Date().toLocaleString()
+            };
+            
+            saveReport(report);
+            showNotification('户外场地维修问题上报成功', 'success');
+            reportForm.reset();
+            
+            // 自动跳转到记录页面
+            document.querySelector('.nav-link[data-page="records"]').click();
         });
 
         // 数据存储功能（使用localStorage模拟）
@@ -1167,6 +1450,15 @@
             bookings.push(booking);
             localStorage.setItem('bookings', JSON.stringify(bookings));
             updateBookingRecords();
+            updateAdminBookingRecords();
+        }
+        
+        function saveReport(report) {
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            reports.push(report);
+            localStorage.setItem('reports', JSON.stringify(reports));
+            updateReportRecords();
+            updateAdminReportRecords();
         }
         
         // 更新记录显示
@@ -1190,6 +1482,7 @@
                 recordItem.className = 'record-item';
                 
                 const statusClass = `status-${booking.status}`;
+                const isDaytime = parseInt(booking.time.split(':')[0]) < 18;
                 
                 recordItem.innerHTML = `
                     <div class="record-info">
@@ -1201,6 +1494,55 @@
                     </div>
                     <div class="record-actions">
                         <span class="record-status ${statusClass}">${getStatusText(booking.status)}</span>
+                        ${booking.status === 'pending' ? '<button class="btn cancel-booking" data-id="'+booking.id+'" style="padding: 0.5rem 1rem; margin-top: 0.5rem;"><i class="fas fa-times"></i> 取消</button>' : ''}
+                    </div>
+                `;
+                
+                recordsContainer.appendChild(recordItem);
+            });
+            
+            // 添加取消预约事件
+            document.querySelectorAll('.cancel-booking').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    cancelBooking(id);
+                });
+            });
+        }
+        
+        function updateReportRecords() {
+            const recordsContainer = document.getElementById('report-records');
+            const reports = JSON.parse(localStorage.getItem('reports')) || [];
+            
+            if (reports.length === 0) {
+                recordsContainer.innerHTML = `
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无维修上报记录
+                    </p>
+                `;
+                return;
+            }
+            
+            recordsContainer.innerHTML = '';
+            reports.forEach(report => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                
+                const statusClass = `status-${report.status}`;
+                const typeText = getProblemTypeText(report.type);
+                const courtText = report.court === 'common' ? '公共区域' : report.court + '场地';
+                
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <h3>${report.date} - ${courtText}</h3>
+                        <p><i class="fas fa-cog"></i> 问题类型: ${typeText}</p>
+                        <p><i class="fas fa-phone"></i> 联系方式: ${report.contact}</p>
+                        <p><i class="fas fa-edit"></i> 问题描述: ${report.description}</p>
+                        <p><i class="fas fa-camera"></i> 图片: ${report.image}</p>
+                    </div>
+                    <div class="record-actions">
+                        <span class="record-status ${statusClass}">${getStatusText(report.status)}</span>
                     </div>
                 `;
                 
@@ -1208,64 +1550,14 @@
             });
         }
         
-        // 更新场地状态
-        function updateCourtStatus() {
-            const courtStatusContainer = document.getElementById('court-status');
-            const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
-            const today = new Date().toISOString().split('T')[0];
-            
-            // 获取今天的预约
-            const todayBookings = bookings.filter(booking => booking.date === today);
-            
-            if (todayBookings.length === 0) {
-                courtStatusContainer.innerHTML = `
-                    <p style="text-align: center; padding: 2rem; color: #666;">
-                        <i class="fas fa-calendar-day" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
-                        今日暂无场地预约
-                    </p>
-                `;
-                return;
-            }
-            
-            courtStatusContainer.innerHTML = '<h3>今日场地使用情况</h3>';
-            
-            // 按场地分组
-            const courtGroups = {};
-            todayBookings.forEach(booking => {
-                if (!courtGroups[booking.court]) {
-                    courtGroups[booking.court] = [];
-                }
-                courtGroups[booking.court].push(booking);
-            });
-            
-            // 显示每个场地的预约情况
-            Object.keys(courtGroups).forEach(court => {
-                const courtCard = document.createElement('div');
-                courtCard.className = 'card';
-                courtCard.style.padding = '1rem';
-                courtCard.style.marginBottom = '1rem';
-                
-                let bookingsHTML = courtGroups[court].map(booking => 
-                    `<p><strong>${booking.time}</strong> - ${booking.purpose} (${booking.contact})</p>`
-                ).join('');
-                
-                courtCard.innerHTML = `
-                    <h4>${court}场地</h4>
-                    ${bookingsHTML}
-                `;
-                
-                courtStatusContainer.appendChild(courtCard);
-            });
-        }
-        
-        // 更新所有预约记录（管理页面）
-        function updateAllBookings() {
-            const allBookingsContainer = document.getElementById('all-bookings');
+        // 管理员记录显示
+        function updateAdminBookingRecords() {
+            const recordsContainer = document.getElementById('admin-booking-records');
             const bookings = JSON.parse(localStorage.getItem('bookings')) || [];
             
             if (bookings.length === 0) {
-                allBookingsContainer.innerHTML += `
-                    <p style="text-align: center; padding: 2rem; color: #666;">
+                recordsContainer.innerHTML = `
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
                         <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
                         暂无预约记录
                     </p>
@@ -1273,37 +1565,214 @@
                 return;
             }
             
-            // 按日期分组
-            const dateGroups = {};
+            recordsContainer.innerHTML = '';
             bookings.forEach(booking => {
-                if (!dateGroups[booking.date]) {
-                    dateGroups[booking.date] = [];
-                }
-                dateGroups[booking.date].push(booking);
-            });
-            
-            // 显示每个日期的预约情况
-            Object.keys(dateGroups).sort().reverse().forEach(date => {
-                const dateCard = document.createElement('div');
-                dateCard.className = 'card';
-                dateCard.style.padding = '1rem';
-                dateCard.style.marginBottom = '1rem';
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
                 
-                let bookingsHTML = dateGroups[date].map(booking => 
-                    `<div style="border-bottom: 1px solid #eee; padding: 0.5rem 0;">
-                        <p><strong>${booking.court}场地 - ${booking.time}</strong></p>
-                        <p>用途: ${booking.purpose} | 联系方式: ${booking.contact}</p>
-                        <p style="font-size: 0.9rem; color: #666;">提交时间: ${booking.submitted}</p>
-                    </div>`
-                ).join('');
+                const statusClass = `status-${booking.status}`;
+                const isDaytime = parseInt(booking.time.split(':')[0]) < 18;
                 
-                dateCard.innerHTML = `
-                    <h4>${date}</h4>
-                    ${bookingsHTML}
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <h3>${booking.date} ${booking.time} - ${booking.court}场地</h3>
+                        <p><i class="fas fa-basketball-ball"></i> 使用目的: ${booking.purpose}</p>
+                        <p><i class="fas fa-phone"></i> 联系方式: ${booking.contact}</p>
+                        <p><i class="far fa-clock"></i> 提交时间: ${booking.submitted}</p>
+                        ${booking.notes ? `<p><i class="far fa-sticky-note"></i> 备注: ${booking.notes}</p>` : ''}
+                    </div>
+                    <div class="record-actions">
+                        <span class="record-status ${statusClass}">${getStatusText(booking.status)}</span>
+                        <div class="admin-actions">
+                            ${booking.status === 'pending' ? '<button class="admin-btn confirm" data-id="'+booking.id+'" data-type="booking">确认</button>' : ''}
+                            ${booking.status === 'confirmed' ? '<button class="admin-btn complete" data-id="'+booking.id+'" data-type="booking">完成</button>' : ''}
+                            ${booking.status !== 'cancelled' && booking.status !== 'completed' ? '<button class="admin-btn cancel" data-id="'+booking.id+'" data-type="booking">取消</button>' : ''}
+                        </div>
+                    </div>
                 `;
                 
-                allBookingsContainer.appendChild(dateCard);
+                recordsContainer.appendChild(recordItem);
             });
+            
+            // 添加管理员操作事件
+            document.querySelectorAll('.admin-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    const type = this.getAttribute('data-type');
+                    const action = this.textContent;
+                    
+                    if (type === 'booking') {
+                        if (action === '确认') {
+                            confirmBooking(id);
+                        } else if (action === '完成') {
+                            completeBooking(id);
+                        } else if (action === '取消') {
+                            adminCancelBooking(id);
+                        }
+                    } else if (type === 'report') {
+                        if (action === '确认') {
+                            confirmReport(id);
+                        } else if (action === '完成') {
+                            completeReport(id);
+                        }
+                    }
+                });
+            });
+        }
+        
+        function updateAdminReportRecords() {
+            const recordsContainer = document.getElementById('admin-report-records');
+            const reports = JSON.parse(localStorage.getItem('reports')) || [];
+            
+            if (reports.length === 0) {
+                recordsContainer.innerHTML = `
+                    <p class="no-records" style="text-align: center; padding: 2rem; color: #666;">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>
+                        暂无维修上报记录
+                    </p>
+                `;
+                return;
+            }
+            
+            recordsContainer.innerHTML = '';
+            reports.forEach(report => {
+                const recordItem = document.createElement('div');
+                recordItem.className = 'record-item';
+                
+                const statusClass = `status-${report.status}`;
+                const typeText = getProblemTypeText(report.type);
+                const courtText = report.court === 'common' ? '公共区域' : report.court + '场地';
+                
+                recordItem.innerHTML = `
+                    <div class="record-info">
+                        <h3>${report.date} - ${courtText}</h3>
+                        <p><i class="fas fa-cog"></i> 问题类型: ${typeText}</p>
+                        <p><i class="fas fa-phone"></i> 联系方式: ${report.contact}</p>
+                        <p><i class="fas fa-edit"></i> 问题描述: ${report.description}</p>
+                        <p><i class="fas fa-camera"></i> 图片: ${report.image}</p>
+                    </div>
+                    <div class="record-actions">
+                        <span class="record-status ${statusClass}">${getStatusText(report.status)}</span>
+                        <div class="admin-actions">
+                            ${report.status === 'pending' ? '<button class="admin-btn confirm" data-id="'+report.id+'" data-type="report">确认</button>' : ''}
+                            ${report.status === 'confirmed' ? '<button class="admin-btn complete" data-id="'+report.id+'" data-type="report">完成</button>' : ''}
+                        </div>
+                    </div>
+                `;
+                
+                recordsContainer.appendChild(recordItem);
+            });
+            
+            // 添加管理员操作事件
+            document.querySelectorAll('.admin-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    const type = this.getAttribute('data-type');
+                    const action = this.textContent;
+                    
+                    if (type === 'booking') {
+                        if (action === '确认') {
+                            confirmBooking(id);
+                        } else if (action === '完成') {
+                            completeBooking(id);
+                        } else if (action === '取消') {
+                            adminCancelBooking(id);
+                        }
+                    } else if (type === 'report') {
+                        if (action === '确认') {
+                            confirmReport(id);
+                        } else if (action === '完成') {
+                            completeReport(id);
+                        }
+                    }
+                });
+            });
+        }
+        
+        // 取消预约（用户）
+        function cancelBooking(id) {
+            let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            bookings = bookings.map(booking => {
+                if (booking.id === id) {
+                    booking.status = 'cancelled';
+                }
+                return booking;
+            });
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            updateBookingRecords();
+            updateAdminBookingRecords();
+            showNotification('户外场地预约已取消', 'success');
+        }
+        
+        // 管理员操作函数
+        function confirmBooking(id) {
+            let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            bookings = bookings.map(booking => {
+                if (booking.id === id) {
+                    booking.status = 'confirmed';
+                }
+                return booking;
+            });
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            updateBookingRecords();
+            updateAdminBookingRecords();
+            showNotification('预约已确认', 'success');
+        }
+        
+        function completeBooking(id) {
+            let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            bookings = bookings.map(booking => {
+                if (booking.id === id) {
+                    booking.status = 'completed';
+                }
+                return booking;
+            });
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            updateBookingRecords();
+            updateAdminBookingRecords();
+            showNotification('预约已完成', 'success');
+        }
+        
+        function adminCancelBooking(id) {
+            let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+            bookings = bookings.map(booking => {
+                if (booking.id === id) {
+                    booking.status = 'cancelled';
+                }
+                return booking;
+            });
+            localStorage.setItem('bookings', JSON.stringify(bookings));
+            updateBookingRecords();
+            updateAdminBookingRecords();
+            showNotification('预约已取消', 'success');
+        }
+        
+        function confirmReport(id) {
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            reports = reports.map(report => {
+                if (report.id === id) {
+                    report.status = 'confirmed';
+                }
+                return report;
+            });
+            localStorage.setItem('reports', JSON.stringify(reports));
+            updateReportRecords();
+            updateAdminReportRecords();
+            showNotification('维修报告已确认', 'success');
+        }
+        
+        function completeReport(id) {
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            reports = reports.map(report => {
+                if (report.id === id) {
+                    report.status = 'completed';
+                }
+                return report;
+            });
+            localStorage.setItem('reports', JSON.stringify(reports));
+            updateReportRecords();
+            updateAdminReportRecords();
+            showNotification('维修已完成', 'success');
         }
         
         // 状态文本转换
@@ -1317,13 +1786,30 @@
             return statusMap[status] || status;
         }
         
+        function getProblemTypeText(type) {
+            const typeMap = {
+                'basketball_rim': '篮筐问题',
+                'net': '篮网问题',
+                'floor': '地面问题',
+                'lighting': '照明问题',
+                'fence': '围栏问题',
+                'bench': '长椅问题',
+                'other': '其他问题'
+            };
+            return typeMap[type] || type;
+        }
+        
         // 初始化场地选项
         initializeCourtOptions();
         
+        // 初始化登录状态
+        initLoginState();
+        
         // 初始化记录显示
         updateBookingRecords();
-        updateCourtStatus();
-        updateAllBookings();
+        updateReportRecords();
+        updateAdminBookingRecords();
+        updateAdminReportRecords();
         
         // 设置默认日期为今天
         const today = new Date().toISOString().split('T')[0];
@@ -1333,7 +1819,7 @@
         // 添加一些示例数据（首次加载时）
         if (!localStorage.getItem('bookings')) {
             // 添加示例预约记录
-            const exampleBooking1 = {
+            const exampleBooking = {
                 id: Date.now() - 1000,
                 date: today,
                 court: 'A-3',
@@ -1344,21 +1830,20 @@
                 status: 'confirmed',
                 submitted: new Date().toLocaleString()
             };
+            saveBooking(exampleBooking);
             
-            const exampleBooking2 = {
+            // 添加示例维修记录
+            const exampleReport = {
                 id: Date.now() - 2000,
-                date: today,
                 court: 'H-1',
-                time: '18:00-19:00',
-                purpose: '友谊赛',
+                type: 'net',
                 contact: '139****1234',
-                notes: '',
-                status: 'confirmed',
-                submitted: new Date(Date.now() - 3600000).toLocaleString()
+                description: '篮网破损严重，需要更换',
+                image: '无',
+                status: 'completed',
+                date: new Date(Date.now() - 86400000).toLocaleString()
             };
-            
-            saveBooking(exampleBooking1);
-            saveBooking(exampleBooking2);
+            saveReport(exampleReport);
         }
     </script>
 </body>
